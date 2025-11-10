@@ -1,0 +1,56 @@
+[tool.poetry]
+name = "tradfin2simplicity"
+version = "0.1.0"
+description = "Jupyter notebooks for exploring TradFin-to-Simplicity translation and experiments"
+authors = ["coremoon <237020170+coremoon@users.noreply.github.com>"]
+license = "MIT"
+readme = "README.md"
+
+# The main project type is notebooks and analysis tools
+packages = [{ include = "tradfin2simplicity" }]
+
+[tool.poetry.dependencies]
+# Core Python version
+python = ">=3.10,<3.13"
+
+# Jupyter environment
+jupyterlab = "^4.2.0"
+
+# Visualization library
+matplotlib = "^3.9.0"
+
+# Simplicity-related libraries (adjust versions if specific tags exist)
+pyhalsimplicity = "0.1.0"
+pysimplicityhl = "0.3.4"
+
+# (optional) add pandas/numpy if you need data analysis
+# pandas = "^2.2.0"
+# numpy = "^1.26.0"
+
+[tool.poetry.group.dev.dependencies]
+# Development tools
+poethepoet = "^0.27.0"
+black = "^24.0"
+ruff = "^0.6.0"
+
+[tool.poe.tasks]
+# Tasks can be run via `poe <task>` for convenience
+
+# Run JupyterLab
+lab = "jupyter lab"
+
+# Run a notebook conversion example (optional)
+nbconvert = "jupyter nbconvert --to html notebooks/*.ipynb"
+
+# Lint the code
+lint = "ruff check ."
+
+# Format code
+fmt = "black ."
+
+# Example: install/update dependencies
+update = "poetry update"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
