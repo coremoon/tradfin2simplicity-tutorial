@@ -1,0 +1,35 @@
+{
+    "TARGET_ASSET_ID": {
+        "value": "0x79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "type": "u256"
+    },
+    "COLLATERAL_ASSET_ID": {
+        "value": "0x79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "type": "u256"
+    },
+    "ASSET_STRIKE_PRICE": {
+        "value": "1000",
+        "type": "u256"
+    },
+    "GRANTOR_TOKEN_STRIKE_PRICE": {
+        "value": "1100",
+        "type": "u256"
+    },
+    "GRANTOR_TOKEN_ASSET": {
+        "value": "50000",
+        "type": "u256"
+    },
+    "START_TIME": {
+        "value": "0",
+        "type": "u256"
+    },
+    "TARGET_ASSET_ID": {
+        "value": "100",
+        "type": "u256"
+    },
+    "OPTION_TOKEN_ASSET": {
+        "value": "1",
+        "type": "u256"
+    }
+
+}
