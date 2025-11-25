@@ -14,7 +14,7 @@ packages = [{ include = "tradfin2simplicity" }]
 python = ">=3.10,<3.13"
 
 # Jupyter environment
-jupyterlab = "^4.2.0"
+jupyterlab = "<4.5.0"
 
 # Visualization library
 matplotlib = "^3.9.0"
@@ -32,6 +32,7 @@ pysimplicityhl = "0.3.4"
 poethepoet = "^0.27.0"
 black = "^24.0"
 ruff = "^0.6.0"
+rpds-py="<=0.27.0"
 
 [tool.poe.tasks]
 # Tasks can be run via `poe <task>` for convenience
