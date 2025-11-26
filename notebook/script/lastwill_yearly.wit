@@ -1,0 +1,38 @@
+{
+    "SPEND_TYPE": {
+        "value": "Left(0x755201bb62b0a8b8d18fd12fc02951ea3998ba42bfc6664daaf8a0d2298cad43cdc21358c7c82f37654275dc2fea8c858adbe97bac92828b498a5a237004db6f)",
+        "type": "Either<Signature, Either<Signature, Signature>>"
+    },
+    "ALICE_PUBLIC_KEY": {
+        "value": "0x79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+        "type": "u256"
+    },
+    "BOB_PUBLIC_KEY": {
+        "value": "0xc6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+        "type": "u256"
+    },
+    "CHARLIE_PUBLIC_KEY": {
+        "value": "0xf9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9",
+        "type": "u256"
+    },
+    "ANNUAL_FIXED_AMOUNT": {
+        "value": "100000000",
+        "type": "u64",
+        "description": "Fixed amount paid out annually in satoshis (1 BTC in this example)"
+    },
+    "CURRENT_BALANCE": {
+        "value": "500000000",
+        "type": "u64",
+        "description": "Current balance in the covenant UTXO (before this payout)"
+    },
+    "TIMELOCK_BLOCKS": {
+        "value": "52560",
+        "type": "u32",
+        "description": "Timelock in blocks (365 days = 52560 blocks for year 1; for year 2: 105120; etc.)"
+    },
+    "OUTPUT_AMOUNT_DATA": {
+        "value": "Right(100000000)",
+        "type": "Either<(u1, u256), u64>",
+        "description": "The explicit u64 amount from output 0 (Right variant means unblinded, Left would be blinded)"
+    }
+}

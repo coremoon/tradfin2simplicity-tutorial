@@ -1,0 +1,110 @@
+fn checksig(pk: Pubkey, sig: Signature) {
+    // Compute the standard signature message hash for this spending transaction.
+    let msg: u256 = jet::sig_all_hash();
+    // Verify that `sig` is a valid Schnorr signature (BIP340) by `pk` over `msg`.
+    jet::bip_0340_verify((pk, msg), sig);
+}
+
+fn recursive_covenant() {
+    // Enforce that the spending transaction has exactly 2 outputs.
+    assert!(jet::eq_32(jet::num_outputs(), 2));
+    // Get the hash of the currently executing script (this covenant script).
+    let this_script_hash: u256 = jet::current_script_hash();
+    // Read the script hash of output 0 and fail if it does not exist.
+    let output_script_hash: u256 = unwrap(jet::output_script_hash(0));
+    // Enforce that output 0 uses the same script as this input (recursive covenant).
+    assert!(jet::eq_256(this_script_hash, output_script_hash));
+    // Enforce that output 1 is a fee output to the miner.
+    assert!(unwrap(jet::output_is_fee(1)));
+}
+
+fn yearly_inherit_spend(inheritor_pk: Pubkey, inheritor_sig: Signature, timelock_blocks: Distance) {
+    // Require that the specified timelock has passed before spending.
+    // The timelock_blocks value is calculated externally and passed via witness.
+    // For example: 365 days = 52560 blocks, for N years = N * 52560 blocks.
+    jet::check_lock_distance(timelock_blocks);
+    // After the timelock, allow the inheritor to spend using their key/signature.
+    checksig(inheritor_pk, inheritor_sig);
+}
+
+fn yearly_payout_enforce(annual_fixed_amount: u64, current_balance: u64) {
+    // Extract the output amount from the witness data.
+    // In a real scenario, this would be derived from jet::output_amount(0),
+    // but we pass it via witness to avoid tuple destructuring complexity.
+    let output_data: Either<(u1, u256), u64> = witness::OUTPUT_AMOUNT_DATA;
+    
+    // Extract the explicit u64 amount (Right variant) from the Either type
+    let output_amount: u64 = match output_data {
+        Left(_) => 0u64,  // If blinded, treat as error case
+        Right(amount) => amount,
+    };
+    
+    // Check if current balance is sufficient for the full annual payout.
+    // jet::le_64 returns true if current_balance <= annual_fixed_amount
+    let is_insufficient: bool = jet::le_64(current_balance, annual_fixed_amount);
+    
+    match is_insufficient {
+        // Case 1: Balance is less than or equal to annual amount - final payout
+        true => {
+            assert!(jet::eq_64(output_amount, current_balance));
+            // No recursive covenant here - the contract ends after final payout.
+        },
+        // Case 2: Balance is greater - payout full annual amount and continue covenant.
+        false => {
+            assert!(jet::eq_64(output_amount, annual_fixed_amount));
+            // Enforce the recursive covenant to continue the contract with remaining balance.
+            recursive_covenant();
+        },
+    }
+}
+
+fn cold_spend(cold_pk: Pubkey, cold_sig: Signature) {
+    // Immediate spend path for the cold (high‑security) key.
+    checksig(cold_pk, cold_sig);
+}
+
+fn refresh_spend(hot_pk: Pubkey, hot_sig: Signature) {
+    // Spend using a hot key (e.g. for refreshing or rotating the UTXO).
+    checksig(hot_pk, hot_sig);
+    // Require that the new output recreates the same covenant structure.
+    recursive_covenant();
+}
+
+/*
+This is the main entry point of the program that controls spending logic for annual inheritance payouts.
+
+- It initializes public keys for three parties: Alice (inheritor), Bob (cold storage), and Charlie (hot storage).
+- Depending on the condition `SPEND_TYPE` from the witness, it routes spending:
+    - If an inheritor payout is requested (Variant 0), it calls `yearly_inherit_spend` with:
+      - Alice's key for signing
+      - The inheritor's signature
+      - The pre-calculated timelock in blocks (from witness)
+    - If cold storage spends (Variant 1), it calls `cold_spend` with Bob's key.
+    - If hot storage spends (Variant 2), it calls `refresh_spend` with Charlie's key.
+
+Annual payout mechanism:
+- After each year (365 days = 52560 blocks), the inheritor can claim a fixed amount.
+- The timelock_blocks is passed via witness (e.g., 52560 for year 1, 105120 for year 2, etc.).
+- If balance is greater than the fixed annual amount: Inheritor receives ANNUAL_FIXED_AMOUNT and covenant continues.
+- If balance is less than or equal to the fixed amount: Inheritor receives entire remaining balance and covenant ends.
+- The contract continues indefinitely or until the balance is exhausted.
+*/
+fn main() {
+    let alice_pk: Pubkey = witness::ALICE_PUBLIC_KEY;
+    let bob_pk: Pubkey = witness::BOB_PUBLIC_KEY;
+    let charlie_pk: Pubkey = witness::CHARLIE_PUBLIC_KEY;
+    let annual_fixed_amount: u64 = witness::ANNUAL_FIXED_AMOUNT;
+    let current_balance: u64 = witness::CURRENT_BALANCE;
+    let timelock_blocks: Distance = witness::TIMELOCK_BLOCKS;
+    
+    match witness::SPEND_TYPE {
+        Left(inheritor_sig: Signature) => {
+            yearly_inherit_spend(alice_pk, inheritor_sig, timelock_blocks);
+            yearly_payout_enforce(annual_fixed_amount, current_balance);
+        },
+        Right(cold_or_hot: Either<Signature, Signature>) => match cold_or_hot {
+            Left(cold_sig: Signature) => cold_spend(bob_pk, cold_sig),
+            Right(hot_sig: Signature) => refresh_spend(charlie_pk, hot_sig),
+        },
+    }
+}

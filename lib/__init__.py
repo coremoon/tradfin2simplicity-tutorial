@@ -86,17 +86,40 @@ def compile(code, witness=None, folder=None, delete_temp_files=True):
             _temp_folder = folder
 
     # Create temp files
-    simf_file = write_text_to_temp_file(code, suffix=".simf", directory=_temp_folder)
-    wit_file = write_text_to_temp_file(witness, suffix=".wit", directory=_temp_folder)
+    cfile_given = False
+    if code is not None and os.path.isfile(code):
+        simf_file = code
+        cfile_given = True
+    elif code is None:
+        res["warning"] = "Error: file doese not exist or code is empty.'"
+        res["error"] = True
+        res["status"] = "error"
+        return res
+    else:
+        simf_file = write_text_to_temp_file(code, suffix=".simf", directory=_temp_folder)
+
+    wit_file = None
+    wfile_given = False
+    if witness is not None and os.path.isfile(witness):
+        wfile_given = True
+        wit_file = witness
+    elif witness is None:
+        pass
+    else:
+        wit_file = write_text_to_temp_file(witness, suffix=".wit", directory=_temp_folder)
 
     # Detect Windows
     is_windows = platform.system().lower().startswith("win")
 
     # Build parameter list
-    if is_windows:
-        parameter = ["--debug", f"'{simf_file}'", f"'{wit_file}'"]
-    else:
-        parameter = ["--debug", simf_file, wit_file]
+    parameter = ["--debug"]
+    parameter.append(f"'{simf_file}'" if is_windows else simf_file)
+    if witness is not None:
+        parameter.append(f"'{wit_file}'" if is_windows else wit_file)
+    # if is_windows:
+    #     parameter = ["--debug", f"'{simf_file}'", f"'{wit_file}'"]
+    # else:
+    #     parameter = ["--debug", simf_file, wit_file]
 
     # Convert list to string
     parameter_txt = " ".join(parameter)
@@ -119,9 +142,9 @@ def compile(code, witness=None, folder=None, delete_temp_files=True):
     # Handle deletion of temp files
     if delete_temp_files:
         try:
-            if os.path.exists(simf_file):
+            if os.path.isfile(simf_file) and not cfile_given:
                 os.remove(simf_file)
-            if os.path.exists(wit_file):
+            if wit_file and os.path.isfile(wit_file) and not wfile_given:
                 os.remove(wit_file)
         except Exception:
             traceback_str = traceback.format_exc()
