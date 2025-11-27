@@ -17,22 +17,18 @@
     },
     "ANNUAL_FIXED_AMOUNT": {
         "value": "100000000",
-        "type": "u64",
-        "description": "Fixed amount paid out annually in satoshis (1 BTC in this example)"
+        "type": "u64"
     },
     "CURRENT_BALANCE": {
         "value": "500000000",
-        "type": "u64",
-        "description": "Current balance in the covenant UTXO (before this payout)"
+        "type": "u64"
     },
     "TIMELOCK_BLOCKS": {
         "value": "52560",
-        "type": "u16",
-        "description": "Timelock in blocks (365 days = 52560 blocks for year 1; for year 2: 105120; etc.)"
+        "type": "u16"
     },
     "OUTPUT_AMOUNT_VALUE": {
         "value": "100000000",
-        "type": "u64",
-        "description": "The explicit u64 amount from output 0 (unblinded value in satoshis)"
+        "type": "u64"
     }
 }
