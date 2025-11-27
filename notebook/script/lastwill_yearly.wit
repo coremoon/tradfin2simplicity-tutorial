@@ -27,12 +27,12 @@
     },
     "TIMELOCK_BLOCKS": {
         "value": "52560",
-        "type": "u32",
+        "type": "u16",
         "description": "Timelock in blocks (365 days = 52560 blocks for year 1; for year 2: 105120; etc.)"
     },
-    "OUTPUT_AMOUNT_DATA": {
-        "value": "Right(100000000)",
-        "type": "Either<(u1, u256), u64>",
-        "description": "The explicit u64 amount from output 0 (Right variant means unblinded, Left would be blinded)"
+    "OUTPUT_AMOUNT_VALUE": {
+        "value": "100000000",
+        "type": "u64",
+        "description": "The explicit u64 amount from output 0 (unblinded value in satoshis)"
     }
 }
