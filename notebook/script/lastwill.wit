@@ -1,5 +1,5 @@
 {
-    "SPEND_TYPE": {
+    "INHERIT_OR_NOT": {
         "value": "Left(0x755201bb62b0a8b8d18fd12fc02951ea3998ba42bfc6664daaf8a0d2298cad43cdc21358c7c82f37654275dc2fea8c858adbe97bac92828b498a5a237004db6f)",
         "type": "Either<Signature, Either<Signature, Signature>>"
     },
@@ -14,25 +14,6 @@
     "CHARLIE_PUBLIC_KEY": {
         "value": "0xf9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9",
         "type": "u256"
-    },
-    "ANNUAL_FIXED_AMOUNT": {
-        "value": "100000000",
-        "type": "u64",
-        "description": "Fixed amount paid out annually in satoshis (1 BTC in this example)"
-    },
-    "CURRENT_BALANCE": {
-        "value": "500000000",
-        "type": "u64",
-        "description": "Current balance in the covenant UTXO (before this payout)"
-    },
-    "TIMELOCK_BLOCKS": {
-        "value": "52560",
-        "type": "u16",
-        "description": "Timelock in blocks (365 days = 52560 blocks for year 1; for year 2: 105120; etc.)"
-    },
-    "OUTPUT_AMOUNT_VALUE": {
-        "value": "100000000",
-        "type": "u64",
-        "description": "The explicit u64 amount from output 0 (unblinded value in satoshis)"
     }
+
 }
