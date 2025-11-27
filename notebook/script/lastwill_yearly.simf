@@ -18,7 +18,7 @@ fn recursive_covenant() {
     assert!(unwrap(jet::output_is_fee(1)));
 }
 
-fn yearly_inherit_spend(inheritor_pk: Pubkey, inheritor_sig: Signature, timelock_blocks: Distance) {
+fn yearly_inherit_spend(inheritor_pk: Pubkey, inheritor_sig: Signature, timelock_blocks: u16) {
     // Require that the specified timelock has passed before spending.
     // The timelock_blocks value is calculated externally and passed via witness.
     // For example: 365 days = 52560 blocks, for N years = N * 52560 blocks.
@@ -27,18 +27,8 @@ fn yearly_inherit_spend(inheritor_pk: Pubkey, inheritor_sig: Signature, timelock
     checksig(inheritor_pk, inheritor_sig);
 }
 
-fn yearly_payout_enforce(annual_fixed_amount: u64, current_balance: u64) {
-    // Extract the output amount from the witness data.
-    // In a real scenario, this would be derived from jet::output_amount(0),
-    // but we pass it via witness to avoid tuple destructuring complexity.
-    let output_data: Either<(u1, u256), u64> = witness::OUTPUT_AMOUNT_DATA;
-    
-    // Extract the explicit u64 amount (Right variant) from the Either type
-    let output_amount: u64 = match output_data {
-        Left(_) => 0u64,  // If blinded, treat as error case
-        Right(amount) => amount,
-    };
-    
+fn yearly_payout_enforce(annual_fixed_amount: u64, current_balance: u64, output_amount: u64) {
+    // The output_amount is passed as a parameter from main() where witness data is read.
     // Check if current balance is sufficient for the full annual payout.
     // jet::le_64 returns true if current_balance <= annual_fixed_amount
     let is_insufficient: bool = jet::le_64(current_balance, annual_fixed_amount);
@@ -95,12 +85,13 @@ fn main() {
     let charlie_pk: Pubkey = witness::CHARLIE_PUBLIC_KEY;
     let annual_fixed_amount: u64 = witness::ANNUAL_FIXED_AMOUNT;
     let current_balance: u64 = witness::CURRENT_BALANCE;
-    let timelock_blocks: Distance = witness::TIMELOCK_BLOCKS;
+    let timelock_blocks: u16 = witness::TIMELOCK_BLOCKS;
+    let output_amount: u64 = witness::OUTPUT_AMOUNT_VALUE;
     
     match witness::SPEND_TYPE {
         Left(inheritor_sig: Signature) => {
             yearly_inherit_spend(alice_pk, inheritor_sig, timelock_blocks);
-            yearly_payout_enforce(annual_fixed_amount, current_balance);
+            yearly_payout_enforce(annual_fixed_amount, current_balance, output_amount);
         },
         Right(cold_or_hot: Either<Signature, Signature>) => match cold_or_hot {
             Left(cold_sig: Signature) => cold_spend(bob_pk, cold_sig),
