@@ -26,6 +26,8 @@ pysimplicityhl = "0.3.4"
 # (optional) add pandas/numpy if you need data analysis
 # pandas = "^2.2.0"
 # numpy = "^1.26.0"
+bitcoinrpc = "^0.7.0"
+python-bitcoinrpc = "^1.0"
 
 [tool.poetry.group.dev.dependencies]
 # Development tools
